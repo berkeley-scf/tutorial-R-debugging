@@ -13,7 +13,7 @@ read_chunk('R-debugging.R')
 
 # 0) This Tutorial
 
-This tutorial covers R's debugging tools, as well as strategies and tools for catching and avoiding errors. A [screencast](www.youtube.com) [UNDER CONSTRUCTION] that demonstrates the use of R's interactive debugging tools on a specific example accompanies this document.
+This tutorial covers R's debugging tools, as well as strategies and tools for catching and avoiding errors. A [screencast](https://youtu.be/-yy_3htRHdU) that demonstrates the use of R's interactive debugging tools on a specific example accompanies this document. You should work through the tutorial up to Section 2.2 before viewing the screencast. 
 
 We'll use a virtual machine developed here at Berkeley, the [Berkeley Common Environment (BCE)](http://bce.berkeley.edu). BCE is a virtual Linux machine - basically it is a Linux computer that you can run within your own computer, regardless of whether you are using Windows, Mac, or Linux. This provides a common environment so that things behave the same for all of us.  However, if you have a standard R installation, that should work too.
 
