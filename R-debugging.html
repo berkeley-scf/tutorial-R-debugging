@@ -211,7 +211,7 @@ hr {
 
 <p>This tutorial covers R&#39;s debugging tools, as well as strategies and tools for catching and avoiding errors. A <a href="https://youtu.be/-yy_3htRHdU">screencast</a> that demonstrates the use of R&#39;s interactive debugging tools on a specific example accompanies this document. You should work through the tutorial up to Section 2.2 before viewing the screencast. </p>
 
-<p>We&#39;ll use a virtual machine developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>. BCE is a virtual Linux machine - basically it is a Linux computer that you can run within your own computer, regardless of whether you are using Windows, Mac, or Linux. This provides a common environment so that things behave the same for all of us.  However, if you have a standard R installation, that should work too.</p>
+<p>The screencast uses a virtual machine developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>. BCE is a virtual Linux machine - basically it is a Linux computer that you can run within your own computer, regardless of whether you are using Windows, Mac, or Linux. This provides a common environment so that things behave the same for all of us. That said, BCE hasn&#39;t been updated in a couple years, and if you have a standard R installation, you should be able to use that with this tutorial, including mimicing the demonstration in the screencast. </p>
 
 <p>This tutorial assumes you have a working knowledge of R. </p>
 
@@ -249,6 +249,8 @@ hr {
 
 <p>This section gives an overview of the various debugging tools. In the screencast, you&#39;ll see a live demonstration of using the tools in the context of a real (albeit rather simple) example.</p>
 
+<p>Note that RStudio wraps all of functionality of these tools in its graphical interface, so you can use all the tools there, but the tools will be provided with some additional graphical functionality from RStudio.</p>
+
 <h2>2.1) Interactive debugging via the browser</h2>
 
 <p>The core strategy for interactive debugging is to use the <em>browser</em> function, which pauses the current execution, and provides an interpreter, allowing you to view the current state of R. You can invoke <em>browser</em> in four ways</p>
@@ -266,7 +268,7 @@ hr {
 
 <p>To step through a function, use <code>debug(nameOfFunction)</code>. Then run your code. When the function is executed, R will pause execution just before the first line of the function. You are now using the browser and can examine the state of R and execute R statements.</p>
 
-<p>Once in the browser context, you can use &#39;n&#39; or return to step to the next line, &#39;c&#39; to execute the entire current function or current loop, and &#39; to stop debugging. We&#39;ll see this in the screencast demo.</p>
+<p>Once in the browser context, you can use &#39;n&#39; or <return> to step to the next line, &#39;f&#39; to finish executing the entire current function or current loop, &#39;c&#39; to continue to any subsequent browser calls, or &#39;Q&#39;  to stop debugging. We&#39;ll see this in the screencast demo.</p>
 
 <p>To unflag the function so that calling it doesn&#39;t invoke debug, use <code>undebug(nameOfFunction)</code>. In addition to working with functions you write you can use <em>debug</em> with standard R functions and functions from packages. For example you could do <code>debug(glm)</code>.</p>
 
@@ -276,7 +278,7 @@ hr {
 
 <p>If you&#39;ve run the code and gotten an error, you can invoke <em>traceback</em> after things have gone awry. R will show you the call stack, which can help pinpoint where an error is occurring. </p>
 
-<p>More helpful is to be able to browse within the call stack. To do this invoke <code>options(error = recover)</code> (potentially in your <em>.Rprofile</em> if you do a lot of programming). Then when an error occurs, <em>recover</em> gets called, usually from the function in which the error occurred. The call to <em>recover</em> allows you to navigate the stack of active function calls at the time of the error and browse within the desired call. You just enter the number of the call you&#39;d like to enter (or 0 to exit). You can then look around in the frame of a given function, entering an empty line when you want to return to the list of calls again. </p>
+<p>More helpful is to be able to browse within the call stack. To do this invoke <code>options(error = recover)</code> (potentially in your <em>.Rprofile</em> if you do a lot of programming). Then when an error occurs, <em>recover</em> gets called, usually from the function in which the error occurred. The call to <em>recover</em> allows you to navigate the stack of active function calls at the time of the error and browse within the desired call. You just enter the number of the call you&#39;d like to enter (or 0 to exit). You can then look around in the frame of a given function, entering <return> when you want to return to the list of calls again. </p>
 
 <p>You can also combine this with <code>options(warn = 2)</code>, which turns warnings into errors to get to the point where a warning was issued. </p>
 
