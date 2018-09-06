@@ -211,7 +211,7 @@ hr {
 
 <p>This tutorial covers R&#39;s debugging tools, as well as strategies and tools for catching and avoiding errors. A <a href="https://youtu.be/-yy_3htRHdU">screencast</a> that demonstrates the use of R&#39;s interactive debugging tools on a specific example accompanies this document. You should work through the tutorial up to Section 2.2 before viewing the screencast. </p>
 
-<p>The screencast uses a virtual machine developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>. BCE is a virtual Linux machine - basically it is a Linux computer that you can run within your own computer, regardless of whether you are using Windows, Mac, or Linux. This provides a common environment so that things behave the same for all of us. That said, BCE hasn&#39;t been updated in a couple years, and if you have a standard R installation, you should be able to use that with this tutorial, including mimicing the demonstration in the screencast. </p>
+<p>The screencast uses a virtual machine developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>. BCE is a virtual Linux machine - basically it is a Linux computer that you can run within your own computer, regardless of whether you are using Windows, Mac, or Linux. This provides a common environment so that things behave the same for all of us. However, BCE hasn&#39;t been updated in a couple years, and if you have a standard R installation, you should be able to use that with this tutorial, including mimicing the demonstration in the screencast. So I recommend simply using R on your own system.</p>
 
 <p>This tutorial assumes you have a working knowledge of R. </p>
 
@@ -271,6 +271,8 @@ hr {
 <p>Once in the browser context, you can use &#39;n&#39; or <return> to step to the next line, &#39;f&#39; to finish executing the entire current function or current loop, &#39;c&#39; to continue to any subsequent browser calls, or &#39;Q&#39;  to stop debugging. We&#39;ll see this in the screencast demo.</p>
 
 <p>To unflag the function so that calling it doesn&#39;t invoke debug, use <code>undebug(nameOfFunction)</code>. In addition to working with functions you write you can use <em>debug</em> with standard R functions and functions from packages. For example you could do <code>debug(glm)</code>.</p>
+
+<p>If you know you only want to run the function once in debugging mode (to avoid having to use <em>undebug</em>), use <code>debugonce(nameOfFunction)</code>. </p>
 
 <h2>2.3) Tracing errors in the call stack</h2>
 
@@ -384,9 +386,9 @@ gamma_jackknife(cats$Hwt)
 <li>stop execution based on checks and give an informative error message.</li>
 </ul>
 
-<p>The <em>warning</em> and <em>stop</em> functions allow you to do stop execution and issue warnings or errors in the same way that base R code does; in general they would be called based on an <code>if</code> statement. More succinctly, to stop code if a condition is not satisfied, you can use <em>stopifnot</em>. This allow you to catch errors that can be anticipated.</p>
+<p>The <em>warning</em> and <em>stop</em> functions allow you to do stop execution and issue warnings or errors in the same way that base R code does; in general they would be called based on an <code>if</code> statement. More succinctly, to stop code if a condition is not satisfied, you can use <em>stopifnot</em>. This allow you to catch errors that can be anticipated. I also recommend using some of R&#39;s packages for doing such checks, such as <em>assertthat</em>, <em>assertr</em>, and <em>checkmate</em>.</p>
 
-<p>Here&#39;s an example of building a robust square root function using <em>stop</em> and <em>warning</em>. Note you could use <code>stopifnot(is.numeric(x))</code> in place of one of the checks here.</p>
+<p>Here&#39;s an example of building a robust square root function using <em>stop</em> and <em>warning</em>. Note you could use <code>stopifnot(is.numeric(x))</code> or <code>assert_that(is.numeric(x))</code> in place of one of the checks here.</p>
 
 <pre><code class="r">mysqrt &lt;- function(x) {
     if (is.list(x)) {
@@ -604,7 +606,7 @@ findGlobals(lm)[1:25]
 
 <p>Say what version of R, what operating system and what operating system version you&#39;re using. Both <em>sessionInfo</em> and <em>Sys.info</em> can be helpful for getting this information.</p>
 
-<p>Read the <a href="http://www.r-project.org/posting-guide.html">R mailing list posting guide</a>.</p>
+<p>Read the <a href="https://www.r-project.org/posting-guide.html">R mailing list posting guide</a>.</p>
 
 <p>The R mailing lists are a way to get free advice from the experts, who include some of the world&#39;s most knowledgeable R experts - seriously - members of the R core development team contribute frequently. The cost is that you should do your homework and that sometimes the responses you get may be blunt, along the lines of “read the manual”. I think it&#39;s a pretty good tradeoff - where else do you get the foremost experts in a domain actually helping you?</p>
 
