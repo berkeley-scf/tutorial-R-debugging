@@ -209,7 +209,7 @@ hr {
 
 <h1>0) This Tutorial</h1>
 
-<p>This tutorial covers R&#39;s debugging tools, as well as strategies and tools for catching and avoiding errors. A <a href="https://youtu.be/-yy_3htRHdU">screencast</a> that demonstrates the use of R&#39;s interactive debugging tools on a specific example accompanies this document. You should work through the tutorial up to Section 2.2 before viewing the screencast. </p>
+<p>This tutorial covers R&#39;s debugging tools, as well as strategies and tools for catching and avoiding errors. A <a href="https://youtu.be/-yy_3htRHdU">screencast</a> that demonstrates the use of R&#39;s interactive debugging tools on a specific example accompanies this document. </p>
 
 <p>The screencast uses a virtual machine developed here at Berkeley, the <a href="http://bce.berkeley.edu">Berkeley Common Environment (BCE)</a>. BCE is a virtual Linux machine - basically it is a Linux computer that you can run within your own computer, regardless of whether you are using Windows, Mac, or Linux. This provides a common environment so that things behave the same for all of us. However, BCE hasn&#39;t been updated in a couple years, and if you have a standard R installation, you should be able to use that with this tutorial, including mimicing the demonstration in the screencast. So I recommend simply using R on your own system.</p>
 
@@ -229,7 +229,7 @@ hr {
 
 <h1>1) Basic debugging strategies</h1>
 
-<p>Read and think about the error message. Sometimes it&#39;s inscrutable, but often it just needs a bit of deciphering. Looking up a given error message in the <a href="http://tolstoy.newcastle.edu.au/R">R mailing list archive</a> or on Stack Overflow or simply doing a web search with the exact message in double quotes can be a good strategy.</p>
+<p>Read and think about the error message. Sometimes it&#39;s inscrutable, but often it just needs a bit of deciphering. Looking up a given error message in the <a href="https://search.r-project.org">R mailing list archive</a> or on Stack Overflow or simply doing a web search with the exact message in double quotes can be a good strategy.</p>
 
 <p>Fix errors from the top down - fix the first error that is reported, because later errors are often caused by the initial error. It&#39;s common to have a string of many errors, which looks daunting, caused by a single initial error.</p>
 
@@ -303,7 +303,7 @@ hr {
 
 <p>Of course you can manually change the code in a function without using <em>trace</em>, but it&#39;s very easy to forget to change things back (and a pain to remember exactly what you changed) and hard to do this with functions in packages, so <em>trace</em> is a nice way to do things. </p>
 
-<h1>2.2) Live demonstration</h1>
+<h2>2.5) Live demonstration</h2>
 
 <p>The live demonstration concerns the following code, which uses the jackknife (a method related to the bootstrap) to try to estimate standard errors for parameter estimates for some data on cat heart weights. The details of what the code is trying to do are not critical for our purposes here. </p>
 
@@ -341,10 +341,30 @@ gamma_jackknife &lt;- function(data) {
 gamma_jackknife(cats$Hwt) 
 </code></pre>
 
-<pre><code>## Error: is.atomic(x) is not TRUE
+<pre><code>## Error in FUN(newX[, i], ...): is.atomic(x) is not TRUE
 </code></pre>
 
 <p>See the screencast for how to use <em>traceback</em>, <code>options(error = recover)</code>, <em>debug</em>, and <em>trace</em> to figure out the problem.</p>
+
+<h2>2.6) Debugging R6 and ReferenceClass methods</h2>
+
+<p>To debug an R6 method, you can call the <code>debug</code> method of the class on the method you want to debug:</p>
+
+<pre><code class="r">myClass$debug(&quot;method_name&quot;)
+## now run the method
+myClass$method_name()
+## to unset the debugger
+myClass$undebug(&quot;method_name&quot;)
+</code></pre>
+
+<p>To debug a ReferenceClass method, you can call the <code>trace</code> method of the class on the method you want to debug:</p>
+
+<pre><code class="r">myClass$trace(&quot;method_name&quot;, browser)
+## now run the method
+myClass$method_name()
+## to unset the debugger
+myClass$untrace(&quot;method_name&quot;)
+</code></pre>
 
 <h1>3) Some common causes of bugs</h1>
 
@@ -416,8 +436,7 @@ mysqrt(c(1, 2, 3))
 <pre><code class="r">mysqrt(c(5, -7))
 </code></pre>
 
-<pre><code>## Warning in mysqrt(c(5, -7)): mysqrt: found negative values; proceeding
-## anyway
+<pre><code>## Warning in mysqrt(c(5, -7)): mysqrt: found negative values; proceeding anyway
 </code></pre>
 
 <pre><code>## [1] 2.236068      NaN
@@ -459,40 +478,46 @@ for(i in 1:nCats){
     if(!is(fit, &quot;try-error&quot;)) 
         params[i, ] = fit$coef
 }
-params
 </code></pre>
 
-<pre><code>##              [,1]       [,2]
-##  [1,]  0.32220511  0.4166179
-##  [2,]  0.47524008 -0.6892083
-##  [3,] -0.96340970  0.8029426
-##  [4,]  0.91113661  0.4604388
-##  [5,]  0.50491729  0.2285024
-##  [6,]  9.48183414 13.2340397
-##  [7,]          NA         NA
-##  [8,] -0.14232948  0.1600386
-##  [9,] -0.08800939  1.1267142
-## [10,]  0.43568330         NA
-## [11,]  0.16216315  0.0224648
-## [12,] -0.08576737 -0.1363258
-## [13,] -0.43036777  1.0122300
-## [14,]  0.39878728  0.1609506
-## [15,] -0.57225776 -0.1405326
-## [16,]  0.76815674  1.0656086
-## [17,]  0.72675075         NA
-## [18,] -0.38587004  0.3660344
-## [19,] -1.32035875 -0.1513769
-## [20,] -6.29053429 -8.1642739
-## [21,] -1.01985678  0.5352108
-## [22,] -0.27658878  0.2977353
-## [23,]  0.27678418  0.2170440
-## [24,]  0.11880266  0.2487930
-## [25,] -0.35410886 -1.0930109
-## [26,]  0.21821623 -0.5951547
-## [27,]  0.33884808 -0.1287089
-## [28,]  0.61548557  1.5411494
-## [29,] -0.21555810  0.1195182
-## [30,] -2.24250180 -1.4846365
+<pre><code>## Error in lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...) : 
+##   0 (non-NA) cases
+</code></pre>
+
+<pre><code class="r">params
+</code></pre>
+
+<pre><code>##                [,1]        [,2]
+##  [1,] -0.4358199953  0.27748127
+##  [2,]  1.1581183671  0.80912437
+##  [3,] -0.3554216408  0.47883210
+##  [4,]  0.1557150115  0.48844740
+##  [5,]  1.3686786299 -0.93914607
+##  [6,] -0.4253189229  0.83353130
+##  [7,]  1.4554922258  1.70845976
+##  [8,] -0.3658129573 -0.06813899
+##  [9,]  0.0301244577 -0.08146689
+## [10,] -0.4686109164 -2.05689759
+## [11,]  2.2806852741 -1.66464111
+## [12,]  0.2221364736  0.35794243
+## [13,]  0.2072138141  0.83705334
+## [14,] -0.2273286914          NA
+## [15,]            NA          NA
+## [16,]  0.5851340251 -0.67609092
+## [17,] -0.4604747167 -0.12513299
+## [18,]  1.7525542597  2.46613921
+## [19,]  0.5986682621 -0.10533300
+## [20,]  0.0341767117  0.16544258
+## [21,]  0.4234918160 -0.25409147
+## [22,] -0.6337088930 -2.37384473
+## [23,] -0.3153278059  0.26485741
+## [24,] -0.0008991281  1.39578005
+## [25,]  0.0091840186  0.04655760
+## [26,]  0.8239709421  0.41607748
+## [27,] 14.0124163710 -6.91639295
+## [28,]  0.2046168245 -0.42460241
+## [29,] -0.5619773029 -0.82265332
+## [30,] -0.9483964596  0.83635071
 </code></pre>
 
 <p>The seventh stratum had no observations, so that call to <em>lm</em> failed, but the loop continued because we &#39;caught&#39; the error with <em>try</em>. In this example, we could have checked the sample size for the subset before doing the regression, but in other contexts, we may not have an easy way to check in advance whether the function call will fail.</p>
@@ -549,18 +574,18 @@ f &lt;- function(z) {y &lt;- 3; print(x + y + z)}
 findGlobals(f)
 </code></pre>
 
-<pre><code>## [1] &quot;&lt;-&quot;    &quot;{&quot;     &quot;+&quot;     &quot;print&quot; &quot;x&quot;
+<pre><code>## [1] &quot;{&quot;     &quot;+&quot;     &quot;&lt;-&quot;    &quot;print&quot; &quot;x&quot;
 </code></pre>
 
 <pre><code class="r"># let&#39;s see the globals used in lm
 findGlobals(lm)[1:25]
 </code></pre>
 
-<pre><code>##  [1] &quot;&lt;-&quot;             &quot;==&quot;             &quot;-&quot;              &quot;!&quot;             
-##  [5] &quot;!=&quot;             &quot;[&quot;              &quot;[[&lt;-&quot;           &quot;{&quot;             
-##  [9] &quot;$&lt;-&quot;            &quot;*&quot;              &quot;&amp;&amp;&quot;             &quot;as.vector&quot;     
-## [13] &quot;attr&quot;           &quot;c&quot;              &quot;class&lt;-&quot;        &quot;eval&quot;          
-## [17] &quot;gettextf&quot;       &quot;.getXlevels&quot;    &quot;if&quot;             &quot;is.empty.model&quot;
+<pre><code>##  [1] &quot;-&quot;              &quot;!&quot;              &quot;!=&quot;             &quot;.getXlevels&quot;   
+##  [5] &quot;[&quot;              &quot;[[&lt;-&quot;           &quot;{&quot;              &quot;*&quot;             
+##  [9] &quot;&amp;&amp;&quot;             &quot;&lt;-&quot;             &quot;==&quot;             &quot;$&lt;-&quot;           
+## [13] &quot;as.vector&quot;      &quot;attr&quot;           &quot;c&quot;              &quot;class&lt;-&quot;       
+## [17] &quot;eval&quot;           &quot;gettextf&quot;       &quot;if&quot;             &quot;is.empty.model&quot;
 ## [21] &quot;is.matrix&quot;      &quot;is.null&quot;        &quot;is.numeric&quot;     &quot;length&quot;        
 ## [25] &quot;list&quot;
 </code></pre>
@@ -587,10 +612,10 @@ findGlobals(lm)[1:25]
 <p>There are several mailing lists that have lots of useful postings. In general if you have an error, others have already posted about it.</p>
 
 <ul>
-<li>R help: <a href="http://tolstoy.newcastle.edu.au/R">R mailing lists archive</a></li>
-<li><a href="http://stackoverflow.com">Stack overflow</a>: R stuff will be tagged with &#39;R&#39;: <a href="http://stackoverflow.com/questions/tagged/r">http://stackoverflow.com/questions/tagged/r</a></li>
+<li>R help: <a href="https://search.r-project.org">R mailing lists archive</a></li>
+<li><a href="http://stackoverflow.com">Stack Overflow</a>: R stuff will be tagged with &#39;R&#39;: <a href="http://stackoverflow.com/questions/tagged/r">http://stackoverflow.com/questions/tagged/r</a></li>
 <li>R help special interest groups (SIG) such as r-sig-hpc (high performance computing), r-sig-mac (R on Macs), etc. Unfortunately these are not easily searchable, but can often be found by simple web searchs, potentially including the name of the SIG in the search.</li>
-<li>Simple web searches: You may want to include &ldquo;in R&rdquo;, with the quotes in the search. To search a SIG you might include the name of the SIG in the search string </li>
+<li>Simple web searches: You may want to include &ldquo;R&rdquo; or  &ldquo;in R&rdquo; (possibly with the quotes in latter case) in the search. To search a SIG you might include the name of the SIG in the search string </li>
 <li><a href="http://Rseek.org">Rseek.org</a> for web searches restricted to sites that have information on R</li>
 </ul>
 

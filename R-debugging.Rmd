@@ -13,7 +13,7 @@ read_chunk('R-debugging.R')
 
 # 0) This Tutorial
 
-This tutorial covers R's debugging tools, as well as strategies and tools for catching and avoiding errors. A [screencast](https://youtu.be/-yy_3htRHdU) that demonstrates the use of R's interactive debugging tools on a specific example accompanies this document. You should work through the tutorial up to Section 2.2 before viewing the screencast. 
+This tutorial covers R's debugging tools, as well as strategies and tools for catching and avoiding errors. A [screencast](https://youtu.be/-yy_3htRHdU) that demonstrates the use of R's interactive debugging tools on a specific example accompanies this document. 
 
 The screencast uses a virtual machine developed here at Berkeley, the [Berkeley Common Environment (BCE)](http://bce.berkeley.edu). BCE is a virtual Linux machine - basically it is a Linux computer that you can run within your own computer, regardless of whether you are using Windows, Mac, or Linux. This provides a common environment so that things behave the same for all of us. However, BCE hasn't been updated in a couple years, and if you have a standard R installation, you should be able to use that with this tutorial, including mimicing the demonstration in the screencast. So I recommend simply using R on your own system.
 
@@ -32,7 +32,7 @@ This tutorial by Christopher Paciorek is licensed under a Creative Commons Attri
 
 # 1) Basic debugging strategies
 
-Read and think about the error message. Sometimes it's inscrutable, but often it just needs a bit of deciphering. Looking up a given error message in the [R mailing list archive](http://tolstoy.newcastle.edu.au/R) or on Stack Overflow or simply doing a web search with the exact message in double quotes can be a good strategy.
+Read and think about the error message. Sometimes it's inscrutable, but often it just needs a bit of deciphering. Looking up a given error message in the [R mailing list archive](https://search.r-project.org) or on Stack Overflow or simply doing a web search with the exact message in double quotes can be a good strategy.
 
 Fix errors from the top down - fix the first error that is reported, because later errors are often caused by the initial error. It's common to have a string of many errors, which looks daunting, caused by a single initial error.
 
@@ -108,7 +108,7 @@ To figure out why warnings are being issued, you can do `trace(warning, recover)
 Of course you can manually change the code in a function without using *trace*, but it's very easy to forget to change things back (and a pain to remember exactly what you changed) and hard to do this with functions in packages, so *trace* is a nice way to do things. 
 
 
-# 2.2) Live demonstration
+## 2.5) Live demonstration
 
 The live demonstration concerns the following code, which uses the jackknife (a method related to the bootstrap) to try to estimate standard errors for parameter estimates for some data on cat heart weights. The details of what the code is trying to do are not critical for our purposes here. 
 
@@ -118,6 +118,30 @@ Here is the code, consisting of three functions, with *gamma_jackknife* being  t
 ```
 
 See the screencast for how to use *traceback*, `options(error = recover)`, *debug*, and *trace* to figure out the problem.
+
+## 2.6) Debugging R6 and ReferenceClass methods
+
+To debug an R6 method, you can call the `debug` method of the class on the method you want to debug:
+
+```{r, eval=FALSE}
+myClass$debug("method_name")
+## now run the method
+myClass$method_name()
+## to unset the debugger
+myClass$undebug("method_name")
+```
+
+To debug a ReferenceClass method, you can call the `trace` method of the class on the method you want to debug:
+
+```{r, eval=FALSE}
+myClass$trace("method_name", browser)
+## now run the method
+myClass$method_name()
+## to unset the debugger
+myClass$untrace("method_name")
+```
+
+
 
 # 3) Some common causes of bugs 
 
@@ -207,10 +231,10 @@ Note that some use of globals to find base R functions is unavoidable. But we ca
 
 There are several mailing lists that have lots of useful postings. In general if you have an error, others have already posted about it.
 
- - R help: [R mailing lists archive](http://tolstoy.newcastle.edu.au/R)
- - [Stack overflow](http://stackoverflow.com): R stuff will be tagged with 'R': [http://stackoverflow.com/questions/tagged/r](http://stackoverflow.com/questions/tagged/r)
+ - R help: [R mailing lists archive](https://search.r-project.org)
+ - [Stack Overflow](http://stackoverflow.com): R stuff will be tagged with 'R': [http://stackoverflow.com/questions/tagged/r](http://stackoverflow.com/questions/tagged/r)
  - R help special interest groups (SIG) such as r-sig-hpc (high performance computing), r-sig-mac (R on Macs), etc. Unfortunately these are not easily searchable, but can often be found by simple web searchs, potentially including the name of the SIG in the search.
- - Simple web searches: You may want to include "in R", with the quotes in the search. To search a SIG you might include the name of the SIG in the search string 
+ - Simple web searches: You may want to include "R" or  "in R" (possibly with the quotes in latter case) in the search. To search a SIG you might include the name of the SIG in the search string 
  - [Rseek.org](http://Rseek.org) for web searches restricted to sites that have information on R
 
 Note: of course the various mailing lists are also helpful for figuring out how to do things, not just for fixing bugs. For example, this [blog post](http://www.r-bloggers.com/the-guerilla-guide-to-r/?utm_source=feedburner&utm_medium=email&utm_campaign=Feed%3A+RBloggers+%28R+bloggers%29) has a guide to R based simply on Stack Overflow posts. 
