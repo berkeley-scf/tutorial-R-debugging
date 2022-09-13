@@ -24,84 +24,159 @@ associated code files that were used to create this document are
 available on
 [GitHub](https://github.com/berkeley-scf/tutorial-R-debugging).
 
-``` 
-
 ## 2 Basic debugging strategies
 
-Here we'll discuss some basic strategies for finding and fixing bugs. Other useful locations for tips on debugging include:
+Here we’ll discuss some basic strategies for finding and fixing bugs.
+Other useful locations for tips on debugging include:
 
-  - [Efficient Debugging by Goldspink](https://www.codementor.io/mattgoldspink/how-to-debug-code-efficiently-and-effectively-du107u9jh)
-  - [Debugging for Beginners by Brody](https://blog.hartleybrody.com/debugging-code-beginner/)
+  - [Efficient Debugging by
+    Goldspink](https://www.codementor.io/mattgoldspink/how-to-debug-code-efficiently-and-effectively-du107u9jh)
+  - [Debugging for Beginners by
+    Brody](https://blog.hartleybrody.com/debugging-code-beginner/)
   - [Advanced R by Wickham](https://adv-r.hadley.nz/debugging.html)
 
-Read and think about the error message. Sometimes it's inscrutable, but often it just needs a bit of deciphering. Looking up a given error message by simply doing a web search with the exact message in double quotes can be a good strategy, or you could look specifically on Stack Overflow.
+Read and think about the error message. Sometimes it’s inscrutable, but
+often it just needs a bit of deciphering. Looking up a given error
+message by simply doing a web search with the exact message in double
+quotes can be a good strategy, or you could look specifically on Stack
+Overflow.
 
-Fix errors from the top down - fix the first error that is reported, because later errors are often caused by the initial error. It's common to have a string of many errors, which looks daunting, caused by a single initial error.
+Fix errors from the top down - fix the first error that is reported,
+because later errors are often caused by the initial error. It’s common
+to have a string of many errors, which looks daunting, caused by a
+single initial error.
 
-Below we'll see how one can view the stack trace. Usually when an error occurs, it occurs in a function call that is nested in a series of function calls. This series of calls is the *call stack* and the *stack trace* shows that series of calls that led to the error. To debug, you'll often need to focus on the function being executed at the time the error occurred (which will be at the top of the call stack) and the arguments passed into that function. However, if the error occurs in a function you didn't write, the problem will often be with the arguments that your code provided at the last point in the call stack at which code that you wrote was run. Check the arguments that your code passed into that first function that is not a function of yours. 
+Below we’ll see how one can view the stack trace. Usually when an error
+occurs, it occurs in a function call that is nested in a series of
+function calls. This series of calls is the *call stack* and the *stack
+trace* shows that series of calls that led to the error. To debug,
+you’ll often need to focus on the function being executed at the time
+the error occurred (which will be at the top of the call stack) and the
+arguments passed into that function. However, if the error occurs in a
+function you didn’t write, the problem will often be with the arguments
+that your code provided at the last point in the call stack at which
+code that you wrote was run. Check the arguments that your code passed
+into that first function that is not a function of yours.
 
-Is the bug reproducible - does it always happen in the same way at at the same point? It can help to restart R and see if the bug persists - this can sometimes help in figuring out if there is a scoping issue and we are using a global variable that we did not mean to. 
+Is the bug reproducible - does it always happen in the same way at at
+the same point? It can help to restart R and see if the bug persists -
+this can sometimes help in figuring out if there is a scoping issue and
+we are using a global variable that we did not mean to.
 
-If you can't figure out where the error occurs based on the error messages, a basic strategy is to build up code in pieces (or tear it back in pieces to a simpler version). This allows you to isolate where the error is occurring. You might use a binary search strategy. Figure out which half of the code the error occurs in. Then split the 'bad' half in half and figure out which half the error occurs in. Repeat until you've isolated the problem.
+If you can’t figure out where the error occurs based on the error
+messages, a basic strategy is to build up code in pieces (or tear it
+back in pieces to a simpler version). This allows you to isolate where
+the error is occurring. You might use a binary search strategy. Figure
+out which half of the code the error occurs in. Then split the ‘bad’
+half in half and figure out which half the error occurs in. Repeat until
+you’ve isolated the problem.
 
-If you've written your code modularly with lots of functions, you can test individual functions. Often the error will be in what gets passed into and out of each function.
+If you’ve written your code modularly with lots of functions, you can
+test individual functions. Often the error will be in what gets passed
+into and out of each function.
 
-You can have warnings printed as they occurred, rather than saved, using `options(warn = 1)`. This can help figure out where in a loop a warning is being generated. You can also have R convert warnings to error using `options(warn = 2)`. 
+You can have warnings printed as they occurred, rather than saved, using
+`options(warn = 1)`. This can help figure out where in a loop a warning
+is being generated. You can also have R convert warnings to error using
+`options(warn = 2)`.
 
-At the beginning of time (the 1970s?), the standard debugging strategy was to insert print statements in one's code to see the value of a variable and thereby decipher what could be going wrong. We have better tools nowadays. But sometimes we still need to fall back to inserting print statements.
+At the beginning of time (the 1970s?), the standard debugging strategy
+was to insert print statements in one’s code to see the value of a
+variable and thereby decipher what could be going wrong. We have better
+tools nowadays. But sometimes we still need to fall back to inserting
+print statements.
 
-R is a scripting language, so you can usually run your code line by line to figure out what is happening. This can be a decent approach, particularly for simple code. However, when you are trying to find errors that occur within a series of many nested function calls or when the errors involve variable scoping (how R looks for variables that are not local to a function), or in other complicated situations, using formal debugging tools can be much more effective.  Finally, if the error occurs inside of functions provided by R, rather than ones you write, it can be hard to run the code in those functions line by line. 
+R is a scripting language, so you can usually run your code line by line
+to figure out what is happening. This can be a decent approach,
+particularly for simple code. However, when you are trying to find
+errors that occur within a series of many nested function calls or when
+the errors involve variable scoping (how R looks for variables that are
+not local to a function), or in other complicated situations, using
+formal debugging tools can be much more effective. Finally, if the error
+occurs inside of functions provided by R, rather than ones you write, it
+can be hard to run the code in those functions line by line.
 
+## 3 R’s interactive debugging tools
 
-## 3 R's interactive debugging tools
+This section gives an overview of the various debugging tools. In the
+screencast, you’ll see a live demonstration of using the tools in the
+context of a real (albeit rather simple) example.
 
+Note that RStudio wraps all of functionality of these tools in its
+graphical interface, so you can use all the tools there, but the tools
+will be provided with some additional graphical functionality from
+RStudio.
 
-This section gives an overview of the various debugging tools. In the screencast, you'll see a live demonstration of using the tools in the context of a real (albeit rather simple) example.
-
-Note that RStudio wraps all of functionality of these tools in its graphical interface, so you can use all the tools there, but the tools will be provided with some additional graphical functionality from RStudio.
-
-Hadley Wickham's book on Advanced R has a [very good chapter on debugging](https://adv-r.hadley.nz/debugging.html), covering much of the same material as in this section, but with a focus on how the R debugger works within RStudio. I highly recomend working through his material in conjunction with this tutorial.
+Hadley Wickham’s book on Advanced R has a [very good chapter on
+debugging](https://adv-r.hadley.nz/debugging.html), covering much of the
+same material as in this section, but with a focus on how the R debugger
+works within RStudio. I highly recomend working through his material in
+conjunction with this tutorial.
 
 ### 3.1 Interactive debugging via the browser
 
-The core strategy for interactive debugging is to use the *browser* function, which pauses the current execution, and provides an interpreter, allowing you to view the current state of R. You can invoke *browser* in four ways
+The core strategy for interactive debugging is to use the *browser*
+function, which pauses the current execution, and provides an
+interpreter, allowing you to view the current state of R. You can invoke
+*browser* in four ways
 
- - by inserting a call to `browser()` in your code if you suspect where things are going wrong
+  - by inserting a call to `browser()` in your code if you suspect where
+    things are going wrong
 
- - by invoking the browser after every step of a function using *debug*
+  - by invoking the browser after every step of a function using *debug*
 
- - by using `options(error = recover)` to invoke the browser when an error occurs
+  - by using `options(error = recover)` to invoke the browser when an
+    error occurs
 
- - by temporarily modifying a function to allow browsing using *trace* 
+  - by temporarily modifying a function to allow browsing using *trace*
 
-Once in the browser, you can execute any R commands you want. In particular, using *ls* to look at the objects residing in the current function environment, looking at the values of objects, and examining the classes of objects is often helpful.
+Once in the browser, you can execute any R commands you want. In
+particular, using *ls* to look at the objects residing in the current
+function environment, looking at the values of objects, and examining
+the classes of objects is often helpful.
 
 ### 3.2 Using *debug* to step through code
 
-To step through a function, use `debug(nameOfFunction)`. Then run your code. When the function is executed, R will pause execution just before the first line of the function. You are now using the browser and can examine the state of R and execute R statements.
+To step through a function, use `debug(nameOfFunction)`. Then run your
+code. When the function is executed, R will pause execution just before
+the first line of the function. You are now using the browser and can
+examine the state of R and execute R statements.
 
-Once in the browser context, you can use the following special debugger commands:
+Once in the browser context, you can use the following special debugger
+commands:
 
-  - 'n' or <return> to step to the next line,
-  - 'f' to finish executing the entire current function or current loop,
-  - 'c' to continue to any subsequent browser calls, or
-  - 'Q'  to stop debugging. 
+  - ‘n’ or <return> to step to the next line,
+  - ‘f’ to finish executing the entire current function or current loop,
+  - ‘c’ to continue to any subsequent browser calls, or
+  - ‘Q’ to stop debugging.
 
-To unflag the function so that calling it doesn't invoke debug, use `undebug(nameOfFunction)`. In addition to working with functions you write you can use *debug* with standard R functions and functions from packages. For example you could do `debug(glm)`.
+To unflag the function so that calling it doesn’t invoke debug, use
+`undebug(nameOfFunction)`. In addition to working with functions you
+write you can use *debug* with standard R functions and functions from
+packages. For example you could do `debug(glm)`.
 
-If you know you only want to run the function once in debugging mode (to avoid having to use *undebug*), use `debugonce(nameOfFunction)`. 
+If you know you only want to run the function once in debugging mode (to
+avoid having to use *undebug*), use `debugonce(nameOfFunction)`.
 
 ### 3.3 Tracing errors in the call stack
 
-*traceback* and *recover* allow you to see the call stack at the time of the error - i.e., they will show you all the functions that have been called, in the order called. This helps pinpoint where in a series of function calls the error may be occurring.
+*traceback* and *recover* allow you to see the call stack at the time of
+the error - i.e., they will show you all the functions that have been
+called, in the order called. This helps pinpoint where in a series of
+function calls the error may be occurring.
 
-If you've run the code and gotten an error, you can invoke *traceback* after things have gone awry. R will show you the call stack, which can help pinpoint where an error is occurring. Here's the traceback from the example discussed later on.
-```
+If you’ve run the code and gotten an error, you can invoke *traceback*
+after things have gone awry. R will show you the call stack, which can
+help pinpoint where an error is occurring. Here’s the traceback from the
+example discussed later on.
 
-> traceback() 6: stop(simpleError(msg, call = if (p \<- sys.parent(1L))
-> sys.call(p))) 5: stopifnot(is.atomic(x)) 4: FUN(newX\[, i\], …) 3:
-> apply(estimates, 2, var) at \#2 2: calc\_var(jack\_estimates) at \#9
-> 1: gamma\_jackknife(cats$Hwt) \`\`\`
+    > traceback()
+    6: stop(simpleError(msg, call = if (p <- sys.parent(1L)) sys.call(p)))
+    5: stopifnot(is.atomic(x))
+    4: FUN(newX[, i], ...)
+    3: apply(estimates, 2, var) at #2
+    2: calc_var(jack_estimates) at #9
+    1: gamma_jackknife(cats$Hwt)
 
 More helpful is to be able to browse within the call stack. To do this
 invoke `options(error = recover)` (potentially in your *.Rprofile* if

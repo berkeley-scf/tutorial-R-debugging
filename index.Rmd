@@ -22,7 +22,6 @@ A [screencast](https://youtu.be/-yy_3htRHdU) that demonstrates the use of R's in
 This tutorial assumes you have a working knowledge of R. 
 
 Materials for this tutorial, including the R markdown file and associated code files that were used to create this document are available on [GitHub](https://github.com/berkeley-scf/tutorial-R-debugging).
-```
 
 ## 2 Basic debugging strategies
 
