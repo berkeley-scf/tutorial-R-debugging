@@ -165,7 +165,7 @@ the error - i.e., they will show you all the functions that have been
 called, in the order called. This helps pinpoint where in a series of
 function calls the error may be occurring.
 
-If you’ve run the code and gotten an error, you can invoke *traceback*
+If you’ve run the code and gotten an error, you can invoke `traceback()`
 after things have gone awry. R will show you the call stack, which can
 help pinpoint where an error is occurring. Here’s the traceback from the
 example discussed later on.
@@ -178,6 +178,10 @@ example discussed later on.
     2: calc_var(jack_estimates) at #9
     1: gamma_jackknife(cats$Hwt)
 
+`gamma_jackknife(cats$Hwt)` while `stop()` was (not surprisingly) the
+function that was called most recently (the function at the top of the
+call stack).
+
 More helpful is to be able to browse within the call stack. To do this
 invoke `options(error = recover)` (potentially in your *.Rprofile* if
 you do a lot of programming). Then when an error occurs, *recover* gets
@@ -187,6 +191,10 @@ at the time of the error and browse within the desired call. You just
 enter the number of the call you’d like to enter (or 0 to exit). You can
 then look around in the frame of a given function, entering <return>
 when you want to return to the list of calls again.
+
+Here’s what happens in the example discussed later on. Notice the call
+stack is shown in reverse order relative to what we saw just above with
+`traceback()`.
 
 ``` r
 > gamma_jackknife(cats$Hwt)
