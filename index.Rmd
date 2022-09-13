@@ -1,9 +1,8 @@
-Debugging in R
-======================================================================================
-How to use R's debugging tools, handle errors, and avoid bugs
-----------------------------------------------------------
-
-Chris Paciorek, Department of Statistics, UC Berkeley
+---
+title: Debugging in R
+layout: default
+author: Christopher Paciorek
+---
 
 ```{r setup, include=FALSE}
 library(knitr)
@@ -11,52 +10,59 @@ library(stringr)
 read_chunk('R-debugging.R')
 ```
 
-# 0) This Tutorial
+# How to use R's debugging tools, handle errors, and avoid bugs
 
-This tutorial covers R's debugging tools, as well as strategies and tools for catching and avoiding errors. A [screencast](https://youtu.be/-yy_3htRHdU) that demonstrates the use of R's interactive debugging tools on a specific example accompanies this document. 
 
-The screencast uses a virtual machine developed here at Berkeley, the [Berkeley Common Environment (BCE)](http://bce.berkeley.edu). BCE is a virtual Linux machine - basically it is a Linux computer that you can run within your own computer, regardless of whether you are using Windows, Mac, or Linux. This provides a common environment so that things behave the same for all of us. However, BCE hasn't been updated in a couple years, and if you have a standard R installation, you should be able to use that with this tutorial, including mimicing the demonstration in the screencast. So I recommend simply using R on your own system.
+## 1 This tutorial
+
+This tutorial covers R's debugging tools, as well as strategies and tools for catching and avoiding errors.
+
+A [screencast](https://youtu.be/-yy_3htRHdU) that demonstrates the use of R's interactive debugging tools on a specific example accompanies this document. The screencast uses a virtual machine developed a number of years ago. You should be able to follow it using R on your own computer.
 
 This tutorial assumes you have a working knowledge of R. 
 
-Materials for this tutorial, including the R markdown file and associated code files that were used to create this document are available on Github at (https://github.com/berkeley-scf/tutorial-R-debugging). If you're familiar with Git, you can download the files by doing a git clone from a terminal window on a UNIX-like machine, as follows:
+Materials for this tutorial, including the R markdown file and associated code files that were used to create this document are available on GitHub at (https://github.com/berkeley-scf/tutorial-R-debugging). If you're familiar with Git, you can download the files by doing a git clone from a terminal window on a UNIX-like machine, as follows:
 ```{r, clone, eval=FALSE}
 git clone https://github.com/berkeley-scf/tutorial-R-debugging
 ```
 
-To create this HTML document, simply compile the corresponding R Markdown file in R as follows (the following will work from within BCE after cloning the repository as above).
-```{r, build-html, eval=FALSE}
-Rscript -e "library(knitr); knit2html('R-debugging.Rmd')"
-```
-This tutorial by Christopher Paciorek is licensed under a Creative Commons Attribution 3.0 Unported License.
+## 2 Basic debugging strategies
 
-# 1) Basic debugging strategies
+Here we'll discuss some basic strategies for finding and fixing bugs. Other useful locations for tips on debugging include:
 
-Read and think about the error message. Sometimes it's inscrutable, but often it just needs a bit of deciphering. Looking up a given error message in the [R mailing list archive](https://search.r-project.org) or on Stack Overflow or simply doing a web search with the exact message in double quotes can be a good strategy.
+  - [Efficient Debugging by Goldspink](https://www.codementor.io/mattgoldspink/how-to-debug-code-efficiently-and-effectively-du107u9jh)
+  - [Debugging for Beginners by Brody](https://blog.hartleybrody.com/debugging-code-beginner/)
+  - [Advanced R by Wickham](https://adv-r.hadley.nz/debugging.html)
+
+Read and think about the error message. Sometimes it's inscrutable, but often it just needs a bit of deciphering. Looking up a given error message by simply doing a web search with the exact message in double quotes can be a good strategy, or you could look specifically on Stack Overflow.
 
 Fix errors from the top down - fix the first error that is reported, because later errors are often caused by the initial error. It's common to have a string of many errors, which looks daunting, caused by a single initial error.
 
+Below we'll see how one can view the stack trace. Usually when an error occurs, it occurs in a function call that is nested in a series of function calls. This series of calls is the *call stack* and the *stack trace* shows that series of calls that led to the error. To debug, you'll often need to focus on the function being executed at the time the error occurred (which will be at the top of the call stack) and the arguments passed into that function. However, if the error occurs in a function you didn't write, the problem will often be with the arguments that your code provided at the last point in the call stack at which code that you wrote was run. Check the arguments that your code passed into that first function that is not a function of yours. 
+
 Is the bug reproducible - does it always happen in the same way at at the same point? It can help to restart R and see if the bug persists - this can sometimes help in figuring out if there is a scoping issue and we are using a global variable that we did not mean to. 
 
-Another basic strategy is to build up code in pieces (or tear it back in pieces to a simpler version). This allows you to isolate where the error is occurring.
+If you can't figure out where the error occurs based on the error messages, a basic strategy is to build up code in pieces (or tear it back in pieces to a simpler version). This allows you to isolate where the error is occurring. You might use a binary search strategy. Figure out which half of the code the error occurs in. Then split the 'bad' half in half and figure out which half the error occurs in. Repeat until you've isolated the problem.
 
 If you've written your code modularly with lots of functions, you can test individual functions. Often the error will be in what gets passed into and out of each function.
 
 You can have warnings printed as they occurred, rather than saved, using `options(warn = 1)`. This can help figure out where in a loop a warning is being generated. You can also have R convert warnings to error using `options(warn = 2)`. 
 
-At the beginning of time (the 1970s?), the standard debugging strategy was to insert print statements in one's code to see the value of a variable and thereby decipher what could be going wrong. We have better tools nowadays.
+At the beginning of time (the 1970s?), the standard debugging strategy was to insert print statements in one's code to see the value of a variable and thereby decipher what could be going wrong. We have better tools nowadays. But sometimes we still need to fall back to inserting print statements.
 
 R is a scripting language, so you can usually run your code line by line to figure out what is happening. This can be a decent approach, particularly for simple code. However, when you are trying to find errors that occur within a series of many nested function calls or when the errors involve variable scoping (how R looks for variables that are not local to a function), or in other complicated situations, using formal debugging tools can be much more effective.  Finally, if the error occurs inside of functions provided by R, rather than ones you write, it can be hard to run the code in those functions line by line. 
 
 
-# 2) R's interactive debugging tools
+## 3 R's interactive debugging tools
 
 
 This section gives an overview of the various debugging tools. In the screencast, you'll see a live demonstration of using the tools in the context of a real (albeit rather simple) example.
 
 Note that RStudio wraps all of functionality of these tools in its graphical interface, so you can use all the tools there, but the tools will be provided with some additional graphical functionality from RStudio.
 
-## 2.1) Interactive debugging via the browser
+Hadley Wickham's book on Advanced R has a [very good chapter on debugging](https://adv-r.hadley.nz/debugging.html), covering much of the same material as in this section, but with a focus on how the R debugger works within RStudio. I highly recomend working through his material in conjunction with this tutorial.
+
+### 3.1 Interactive debugging via the browser
 
 The core strategy for interactive debugging is to use the *browser* function, which pauses the current execution, and provides an interpreter, allowing you to view the current state of R. You can invoke *browser* in four ways
 
@@ -70,7 +76,7 @@ The core strategy for interactive debugging is to use the *browser* function, wh
 
 Once in the browser, you can execute any R commands you want. In particular, using *ls* to look at the objects residing in the current function environment, looking at the values of objects, and examining the classes of objects is often helpful.
 
-## 2.2) Using *debug* to step through code
+### 3.2 Using *debug* to step through code
 
 To step through a function, use `debug(nameOfFunction)`. Then run your code. When the function is executed, R will pause execution just before the first line of the function. You are now using the browser and can examine the state of R and execute R statements.
 
@@ -80,7 +86,7 @@ To unflag the function so that calling it doesn't invoke debug, use `undebug(nam
 
 If you know you only want to run the function once in debugging mode (to avoid having to use *undebug*), use `debugonce(nameOfFunction)`. 
 
-## 2.3) Tracing errors in the call stack
+### 3.3 Tracing errors in the call stack
 
 *traceback* and *recover* allow you to see the call stack at the time of the error - i.e., they will show you all the functions that have been called, in the order called. This helps pinpoint where in a series of function calls the error may be occurring.
 
@@ -90,7 +96,7 @@ More helpful is to be able to browse within the call stack. To do this invoke `o
 
 You can also combine this with `options(warn = 2)`, which turns warnings into errors to get to the point where a warning was issued. 
 
-## 2.4) Using *trace* to temporarily insert code
+### 3.4 Using *trace* to temporarily insert code
 
 *trace* lets you temporarily insert code into a function (including standard R functions and functions in packages!) that can then be easily removed. You can use trace in a variety of ways. 
 
@@ -108,7 +114,7 @@ To figure out why warnings are being issued, you can do `trace(warning, recover)
 Of course you can manually change the code in a function without using *trace*, but it's very easy to forget to change things back (and a pain to remember exactly what you changed) and hard to do this with functions in packages, so *trace* is a nice way to do things. 
 
 
-## 2.5) Live demonstration
+### 3.5 Live demonstration
 
 The live demonstration concerns the following code, which uses the jackknife (a method related to the bootstrap) to try to estimate standard errors for parameter estimates for some data on cat heart weights. The details of what the code is trying to do are not critical for our purposes here. 
 
@@ -119,7 +125,7 @@ Here is the code, consisting of three functions, with *gamma_jackknife* being  t
 
 See the screencast for how to use *traceback*, `options(error = recover)`, *debug*, and *trace* to figure out the problem.
 
-## 2.6) Debugging R6 and ReferenceClass methods
+### 3.6 Debugging R6 and ReferenceClass methods
 
 To debug an R6 method, you can call the `debug` method of the class on the method you want to debug:
 
@@ -141,9 +147,7 @@ myClass$method_name()
 myClass$untrace("method_name")
 ```
 
-
-
-# 3) Some common causes of bugs 
+## 4 Some common causes of bugs 
 
 Some of these are R-specific, while others are common to a variety of languages.
 
@@ -153,18 +157,23 @@ Some of these are R-specific, while others are common to a variety of languages.
  - Comparing real numbers exactly using `==` is dangerous because numbers on a computer are only represented to limited numerical precision. For example, 
     ```{r, num-prec}
     ```
+  - Vectors vs. single values: 
+    + `||` vs. `|` and `&&` vs `&`
+    + You expect a single value but your code gives you a vector
+    + You want to compare an entire vector but your code just compares the first value (e.g., in an `if` statement) -- consider using `identical()` or `all.equal()`
  - You expect a single value but execution of the code gives a vector
  - You want to compare an entire vector but your code just compares the first value (e.g., in an if statement) -- consider using *identical* or *all.equal*
  - Silent type conversion when you don't want it, or lack of coercion where you're expecting it
  - Using the wrong function or variable name
- - Giving unnamed arguments to a function in the wrong order 
+ - Giving unnamed arguments to a function in the wrong order
+ - A common error is that the condition of an if statement is `NA`. You can handle NAs using `if(isTRUE(condition))` or `if(isFALSE(condition))`.
  - In an if-else statement, the `else` cannot be on its own line (unless all the code is enclosed in `{}`) because R will see the `if` part of the statement, which is a valid R statement, will execute that, and then will encounter the `else` and return an error.
  - Forgetting to define a variable in the environment of a function and having R, via lexical scoping, get that variable as a global variable from one of the enclosing environments. At best the types are not compatible and you get an error; at worst, you use a garbage value and the bug is hard to trace. In some cases your code may work fine when you develop the code (if the variable exists in the enclosing environment), but then may not work when you restart R if the variable no longer exists or is different.
  - R (usually helpfully) drops matrix and array dimensions that are extraneous. This can sometimes confuse later code that expects an object of a certain dimension. More on this in Section 4.3
 
-# 4) Tips for avoiding bugs and catching errors
+## 5 Tips for avoiding bugs and catching errors
 
-## 4.1) Practice defensive programming
+### 5.1 Practice defensive programming
 
 When writing functions, and software more generally, you'll want to warn the user or stop execution when there is an error and exit gracefully, giving the user some idea of what happened. Here are some things to consider:
 
@@ -182,7 +191,7 @@ Here's an example of building a robust square root function using *stop* and *wa
 ```{r, stop}
 ```
 
-## 4.2) Catch run-time errors with  `try` statements
+### 5.2 Catch run-time errors with  `try` statements
 
 Also, sometimes a function you call will fail, but you want to continue execution. For example, suppose you are doing a stratified analysis in which you take subsets of your data based on some categorical variable and fit a statistical model for each value of the categorical variable. If some of the subsets have no or very few observations, the statistical model fitting might fail. To do this, you might be using a for loop or *lapply*. You want your code to continue and fit the model for the rest of the cases even if one (or more) of the cases cannot be fit.  You can wrap the function call that may fail within the `try` function (or `tryCatch`) and then your code won't stop, even when an error occurs. Here's a toy example.
 
@@ -191,7 +200,7 @@ Also, sometimes a function you call will fail, but you want to continue executio
 
 The seventh stratum had no observations, so that call to *lm* failed, but the loop continued because we 'caught' the error with *try*. In this example, we could have checked the sample size for the subset before doing the regression, but in other contexts, we may not have an easy way to check in advance whether the function call will fail.
 
-## 4.3) Maintain dimensionality
+### 5.3 Maintain dimensionality
 
 R (usually helpfully) drops matrix and array dimensions that are extraneous. This can sometimes confuse later code that expects an object of a certain dimension. The `[` operator takes an additional optional argument that can avoid dropping dimensions.
 
@@ -200,7 +209,7 @@ R (usually helpfully) drops matrix and array dimensions that are extraneous. Thi
 
 In this simple case it's obvious that a dimension will be dropped, but in more complicated settings, this can easily occur for some inputs without the coder realizing that it may happen. Not dropping dimensions is much easier than putting checks in to see if dimensions have been dropped and having the code behave differently depending on the dimensionality.
 
-## 4.4) Find and avoid global variables
+### 5.4 Find and avoid global variables
 
 In general, using global variables (variables that are not created or passed into a function) results in code that is not robust. Results will change if you or a user modifies that global variable, usually without realizing/remembering that a function depends on it. 
 
@@ -213,7 +222,7 @@ To be more systematic, the *codetools* library has some useful tools for checkin
 
 Note that some use of globals to find base R functions is unavoidable. But we can easily see that *f* makes use of *x* as a global variable. This is of course particularly helpful for more complicated functions that use many variables.
 
-## 4.5) Miscellaneous tips
+### 5.5 Miscellaneous tips
 
  - Use core R functionality and algorithms already coded. Figure out if a functionality already exists in (or can be adapted from) an R package (or potentially in a C/Fortran library/package): code that is part of standard mathematical/numerical packages will probably be more efficient and bug-free than anything you would write.
  - Code in a modular fashion, making good use of functions, so that you don't need to debug the same code multiple times. Smaller functions are easier to debug, easier to understand, and can be combined in a modular fashion (like the UNIX utilities).
@@ -225,30 +234,30 @@ Note that some use of globals to find base R functions is unavoidable. But we ca
  - Don't hard code numbers - use variables (e.g., number of iterations, parameter values in simulations), even if you don't expect to change the value, as this makes the code more readable and reduces bugs when you use the same number multiple times; e.g. `speedOfLight <- 3e8` or `nIts <- 1000`.
 
 
-# 5) How to get help online
+## 6 How to get help online
 
-## 5.1) Mailing lists and online forums
+### 6.1 Mailing lists and online forums
 
 There are several mailing lists that have lots of useful postings. In general if you have an error, others have already posted about it.
 
+ - [Stack Overflow](https://stackoverflow.com): R stuff will be tagged with 'R': [https://stackoverflow.com/questions/tagged/r](https://stackoverflow.com/questions/tagged/r)
  - R help: [R mailing lists archive](https://search.r-project.org)
- - [Stack Overflow](http://stackoverflow.com): R stuff will be tagged with 'R': [http://stackoverflow.com/questions/tagged/r](http://stackoverflow.com/questions/tagged/r)
  - R help special interest groups (SIG) such as r-sig-hpc (high performance computing), r-sig-mac (R on Macs), etc. Unfortunately these are not easily searchable, but can often be found by simple web searchs, potentially including the name of the SIG in the search.
  - Simple web searches: You may want to include "R" or  "in R" (possibly with the quotes in latter case) in the search. To search a SIG you might include the name of the SIG in the search string 
- - [Rseek.org](http://Rseek.org) for web searches restricted to sites that have information on R
+ - [Rseek.org](https://Rseek.org) for web searches restricted to sites that have information on R
 
 Note: of course the various mailing lists are also helpful for figuring out how to do things, not just for fixing bugs. For example, this [blog post](http://www.r-bloggers.com/the-guerilla-guide-to-r/?utm_source=feedburner&utm_medium=email&utm_campaign=Feed%3A+RBloggers+%28R+bloggers%29) has a guide to R based simply on Stack Overflow posts. 
 
-## 5.2) Asking questions online
+### 6.2 Asking questions online
 
 If you've searched the archive and haven't found an answer to your problem, you can often get help by posting to the R-help mailing list or one of the other lists mentioned above. A few guidelines (generally relevant when posting to mailing lists beyond just the R lists): 
 
 Search the archives and look through relevant R books or manuals first.
 
-Boil your problem down to the essence of the problem, giving an example, including the output and error message
+Boil your problem down to the essence of the problem, giving an example, including the output and error message. The [reprex package](https://reprex.tidyverse.org) can help you prepare a reproducible example to post on a mailing list.
 
 Say what version of R, what operating system and what operating system version you're using. Both *sessionInfo* and *Sys.info* can be helpful for getting this information.
 
 Read the [R mailing list posting guide](https://www.r-project.org/posting-guide.html).
 
-The R mailing lists are a way to get free advice from the experts, who include some of the world's most knowledgeable R experts - seriously - members of the R core development team contribute frequently. The cost is that you should do your homework and that sometimes the responses you get may be blunt, along the lines of “read the manual”. I think it's a pretty good tradeoff - where else do you get the foremost experts in a domain actually helping you?
+The R mailing lists are a way to get free advice from the experts, who include some of the world's most knowledgeable R experts - seriously - members of the R core development team contribute frequently. The cost is that you should do your homework and that sometimes the responses you get might be blunt, along the lines of “read the manual”. I think it's a pretty good tradeoff - where else do you get the foremost experts in a domain actually helping you?

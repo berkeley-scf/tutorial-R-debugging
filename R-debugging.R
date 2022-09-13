@@ -29,7 +29,7 @@ gamma_jackknife <- function(data) {
 }
 
 # jackknife gamma dist. estimates of cat heart weights
-gamma_jackknife(cats$Hwt) 
+try(gamma_jackknife(cats$Hwt))
 
 ## @knitr num-prec
 
@@ -56,8 +56,8 @@ mysqrt <- function(x) {
 }
 mysqrt(c(1, 2, 3))
 mysqrt(c(5, -7))
-mysqrt(c("asdf", "sdf"))
-mysqrt(list(5, 3, "ab"))
+try(mysqrt(c("asdf", "sdf")))
+try(mysqrt(list(5, 3, "ab")))
 
 
 ## @knitr try
@@ -88,7 +88,7 @@ dim(mat); print(mat)
 colSums(mat)
 rowSubset <- 1
 mat2 <- mat[rowSubset, ]
-colSums(mat2)
+try(colSums(mat2))
 
 mat2 <- mat[rowSubset, , drop = FALSE]
 colSums(mat)
