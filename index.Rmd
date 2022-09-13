@@ -21,9 +21,7 @@ A [screencast](https://youtu.be/-yy_3htRHdU) that demonstrates the use of R's in
 
 This tutorial assumes you have a working knowledge of R. 
 
-Materials for this tutorial, including the R markdown file and associated code files that were used to create this document are available on GitHub at (https://github.com/berkeley-scf/tutorial-R-debugging). If you're familiar with Git, you can download the files by doing a git clone from a terminal window on a UNIX-like machine, as follows:
-```{r, clone, eval=FALSE}
-git clone https://github.com/berkeley-scf/tutorial-R-debugging
+Materials for this tutorial, including the R markdown file and associated code files that were used to create this document are available on [GitHub](https://github.com/berkeley-scf/tutorial-R-debugging).
 ```
 
 ## 2 Basic debugging strategies
@@ -80,7 +78,12 @@ Once in the browser, you can execute any R commands you want. In particular, usi
 
 To step through a function, use `debug(nameOfFunction)`. Then run your code. When the function is executed, R will pause execution just before the first line of the function. You are now using the browser and can examine the state of R and execute R statements.
 
-Once in the browser context, you can use 'n' or <return> to step to the next line, 'f' to finish executing the entire current function or current loop, 'c' to continue to any subsequent browser calls, or 'Q'  to stop debugging. We'll see this in the screencast demo.
+Once in the browser context, you can use the following special debugger commands:
+
+  - 'n' or <return> to step to the next line,
+  - 'f' to finish executing the entire current function or current loop,
+  - 'c' to continue to any subsequent browser calls, or
+  - 'Q'  to stop debugging. 
 
 To unflag the function so that calling it doesn't invoke debug, use `undebug(nameOfFunction)`. In addition to working with functions you write you can use *debug* with standard R functions and functions from packages. For example you could do `debug(glm)`.
 
@@ -90,9 +93,37 @@ If you know you only want to run the function once in debugging mode (to avoid h
 
 *traceback* and *recover* allow you to see the call stack at the time of the error - i.e., they will show you all the functions that have been called, in the order called. This helps pinpoint where in a series of function calls the error may be occurring.
 
-If you've run the code and gotten an error, you can invoke *traceback* after things have gone awry. R will show you the call stack, which can help pinpoint where an error is occurring. 
+If you've run the code and gotten an error, you can invoke *traceback* after things have gone awry. R will show you the call stack, which can help pinpoint where an error is occurring. Here's the traceback from the example discussed later on.
+
+```
+> traceback()
+6: stop(simpleError(msg, call = if (p <- sys.parent(1L)) sys.call(p)))
+5: stopifnot(is.atomic(x))
+4: FUN(newX[, i], ...)
+3: apply(estimates, 2, var) at #2
+2: calc_var(jack_estimates) at #9
+1: gamma_jackknife(cats$Hwt)
+```
 
 More helpful is to be able to browse within the call stack. To do this invoke `options(error = recover)` (potentially in your *.Rprofile* if you do a lot of programming). Then when an error occurs, *recover* gets called, usually from the function in which the error occurred. The call to *recover* allows you to navigate the stack of active function calls at the time of the error and browse within the desired call. You just enter the number of the call you'd like to enter (or 0 to exit). You can then look around in the frame of a given function, entering <return> when you want to return to the list of calls again. 
+
+```{r, eval=FALSE}
+> gamma_jackknife(cats$Hwt)
+Error in FUN(newX[, i], ...) : is.atomic(x) is not TRUE
+
+Enter a frame number, or 0 to exit   
+
+1: gamma_jackknife(cats$Hwt)
+2: #9: calc_var(jack_estimates)
+3: #2: apply(estimates, 2, var)
+4: FUN(newX[, i], ...)
+5: stopifnot(is.atomic(x))
+
+Selection: 
+```
+
+In this case we would probably want to select '2' to get into the frame of the `calc_var` function, which is the last function that we wrote before calling existing R functions. We could then examine the information in the `estimates` data structure, as the problem likely occurs there, since that is the argument passed into the first R function we did not write, namely `apply`. 
+
 
 You can also combine this with `options(warn = 2)`, which turns warnings into errors to get to the point where a warning was issued. 
 
@@ -169,7 +200,7 @@ Some of these are R-specific, while others are common to a variety of languages.
  - A common error is that the condition of an if statement is `NA`. You can handle NAs using `if(isTRUE(condition))` or `if(isFALSE(condition))`.
  - In an if-else statement, the `else` cannot be on its own line (unless all the code is enclosed in `{}`) because R will see the `if` part of the statement, which is a valid R statement, will execute that, and then will encounter the `else` and return an error.
  - Forgetting to define a variable in the environment of a function and having R, via lexical scoping, get that variable as a global variable from one of the enclosing environments. At best the types are not compatible and you get an error; at worst, you use a garbage value and the bug is hard to trace. In some cases your code may work fine when you develop the code (if the variable exists in the enclosing environment), but then may not work when you restart R if the variable no longer exists or is different.
- - R (usually helpfully) drops matrix and array dimensions that are extraneous. This can sometimes confuse later code that expects an object of a certain dimension. More on this in Section 4.3
+ - R (usually helpfully) drops matrix and array dimensions that are extraneous. This can sometimes confuse later code that expects an object of a certain dimension. More on this in Section 5.3.
 
 ## 5 Tips for avoiding bugs and catching errors
 
@@ -240,7 +271,8 @@ Note that some use of globals to find base R functions is unavoidable. But we ca
 
 There are several mailing lists that have lots of useful postings. In general if you have an error, others have already posted about it.
 
- - [Stack Overflow](https://stackoverflow.com): R stuff will be tagged with 'R': [https://stackoverflow.com/questions/tagged/r](https://stackoverflow.com/questions/tagged/r)
+ - [Stack Overflow](https://stackoverflow.com):
+     - R stuff will be tagged with 'R': [https://stackoverflow.com/questions/tagged/r](https://stackoverflow.com/questions/tagged/r)
  - R help: [R mailing lists archive](https://search.r-project.org)
  - R help special interest groups (SIG) such as r-sig-hpc (high performance computing), r-sig-mac (R on Macs), etc. Unfortunately these are not easily searchable, but can often be found by simple web searchs, potentially including the name of the SIG in the search.
  - Simple web searches: You may want to include "R" or  "in R" (possibly with the quotes in latter case) in the search. To search a SIG you might include the name of the SIG in the search string 
@@ -252,12 +284,9 @@ Note: of course the various mailing lists are also helpful for figuring out how 
 
 If you've searched the archive and haven't found an answer to your problem, you can often get help by posting to the R-help mailing list or one of the other lists mentioned above. A few guidelines (generally relevant when posting to mailing lists beyond just the R lists): 
 
-Search the archives and look through relevant R books or manuals first.
+  - Search the archives and look through relevant R books or manuals first.
+  - Boil your problem down to the essence of the problem, giving an example, including the output and error message. The [reprex package](https://reprex.tidyverse.org) can help you prepare a reproducible example to post on a mailing list.
+  - Say what version of R, the versions of all R packages involved, what operating system and what operating system version you're using. Both *sessionInfo* and *Sys.info* can be helpful for getting this information.
+  - Read the [R mailing list posting guide](https://www.r-project.org/posting-guide.html).
 
-Boil your problem down to the essence of the problem, giving an example, including the output and error message. The [reprex package](https://reprex.tidyverse.org) can help you prepare a reproducible example to post on a mailing list.
-
-Say what version of R, what operating system and what operating system version you're using. Both *sessionInfo* and *Sys.info* can be helpful for getting this information.
-
-Read the [R mailing list posting guide](https://www.r-project.org/posting-guide.html).
-
-The R mailing lists are a way to get free advice from the experts, who include some of the world's most knowledgeable R experts - seriously - members of the R core development team contribute frequently. The cost is that you should do your homework and that sometimes the responses you get might be blunt, along the lines of “read the manual”. I think it's a pretty good tradeoff - where else do you get the foremost experts in a domain actually helping you?
+The R mailing lists are a way to get free advice from the experts, who include some of the world's most knowledgeable R experts - seriously - members of the R core development team contribute frequently. The cost is that you should do your homework and that sometimes the responses you get might be blunt, along the lines of "read the manual". I think it's a pretty good tradeoff - where else do you get the foremost experts in a domain actually helping you?
