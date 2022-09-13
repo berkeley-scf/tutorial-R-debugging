@@ -104,9 +104,9 @@ If you've run the code and gotten an error, you can invoke `traceback()` after t
 1: gamma_jackknife(cats$Hwt)
 ```
 
-`gamma_jackknife(cats$Hwt)` while `stop()` was (not surprisingly) the function that was called most recently (the function at the top of the call stack).
+`gamma_jackknife(cats$Hwt)` is the first function since it's what the user invoked, while `stop()` was (not surprisingly) the function that was called most recently (the function at the top of the call stack).
 
-More helpful is to be able to browse within the call stack. To do this invoke `options(error = recover)` (potentially in your *.Rprofile* if you do a lot of programming). Then when an error occurs, *recover* gets called, usually from the function in which the error occurred. The call to *recover* allows you to navigate the stack of active function calls at the time of the error and browse within the desired call. You just enter the number of the call you'd like to enter (or 0 to exit). You can then look around in the frame of a given function, entering <return> when you want to return to the list of calls again. 
+More helpful is to be able to browse within the call stack (i.e., to enter a given function frame and look around at the state of the variables). To do this invoke `options(error = recover)` (potentially in your *.Rprofile* if you do a lot of programming). Then when an error occurs, *recover* gets called, usually from the function in which the error occurred. The call to *recover* allows you to navigate the stack of active function calls at the time of the error and browse within the desired call. You just enter the number of the call you'd like to enter (or 0 to exit). You can then look around in the frame of a given function, entering <return> when you want to return to the list of calls again. 
 
 Here's what happens in the example discussed later on. Notice the call stack is shown in reverse order relative to what we saw just above with `traceback()`. 
 
@@ -275,7 +275,7 @@ Note that some use of globals to find base R functions is unavoidable. But we ca
 There are several mailing lists that have lots of useful postings. In general if you have an error, others have already posted about it.
 
  - [Stack Overflow](https://stackoverflow.com):
-     - R stuff will be tagged with 'R': [https://stackoverflow.com/questions/tagged/r](https://stackoverflow.com/questions/tagged/r)
+   - R stuff will be tagged with 'R': [https://stackoverflow.com/questions/tagged/r](https://stackoverflow.com/questions/tagged/r)
  - R help: [R mailing lists archive](https://search.r-project.org)
  - R help special interest groups (SIG) such as r-sig-hpc (high performance computing), r-sig-mac (R on Macs), etc. Unfortunately these are not easily searchable, but can often be found by simple web searchs, potentially including the name of the SIG in the search.
  - Simple web searches: You may want to include "R" or  "in R" (possibly with the quotes in latter case) in the search. To search a SIG you might include the name of the SIG in the search string 
